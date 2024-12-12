@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  http:
+    build: http
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./../:/var/www/html
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+      - ./http/conf/000-default.conf:/etc/apache2/sites-available/000-default.conf
+    user:
+      1000:1000
+    networks:
+      mmv-be:
+        aliases:
+          - mmv-be.local
+    env_file:
+      - ./.env
+  database:
+    build: database
+    ports:
+      - 3306:3306
+    volumes:
+      - ./database/var/lib/mysql:/var/lib/mysql
+    networks:
+      - mmv-be
+    domainname: mysql
+    hostname: mysql
+    env_file:
+      - ./.env
+    restart: on-failure
+  node:
+    build: node
+    volumes:
+      - ./../:/usr/app
+networks:
+  mmv-be:
+    driver: bridge
